@@ -1,24 +1,25 @@
 <div class="ytg-container">
     <div class="ytg-controls">
-        <div class="ytg-watch-controls branded-page-module-title">Watched videos:
-            <span class="yt-uix-button-group vm-view-toggle" data-button-toggle-group="required">
+        <div class="ytg-watch-controls">
+            <span id="title" class="ytd-shelf-renderer">Watched videos: </span>
+            <span class="vm-view-toggle" data-button-toggle-group="required">
                 <button aria-label="Show watched videos" type="button"
-                        class="start view-toggle-button yt-uix-button yt-uix-button-default yt-uix-button-size-default yt-uix-button-empty"
+                        class="start view-toggle-button"
                         data-button-toggle="true" role="button" id="showVideos">
-                    <span class="yt-uix-button-content">Show</span>
+                    <span>Show</span>
                 </button>
             </span>
-            <span class="yt-uix-button-group vm-view-toggle" data-button-toggle-group="required">
+            <span class="vm-view-toggle" data-button-toggle-group="required">
                 <button aria-label="Hide watched videos" type="button"
-                        class="end view-toggle-button yt-uix-button yt-uix-button-default yt-uix-button-size-default yt-uix-button-empty"
+                        class="end view-toggle-button"
                         data-button-toggle="true" role="button" id="hideVideos">
-                    <span class="yt-uix-button-content">Hide</span>
+                    <span>Hide</span>
                 </button>
             </span>
             <button aria-label="Show watched videos" type="button"
-                    class="ytg-mark-all-watched yt-uix-button yt-uix-button-default yt-uix-button-size-default yt-uix-button-empty"
+                    class="ytg-mark-all-watched"
                     role="button" id="markAllVideos">
-                <span class="yt-uix-button-content">Mark all visible videos as watched</span>
+                <span>Mark all visible videos as watched</span>
             </button>
             <a class="ytg-subs-grid-settings-button"></a>
         </div>
@@ -34,35 +35,13 @@
     <div class="ytg-settings" style="">
         <div class="ytg-fl account-container">
             <h1>Settings: Subscriptions Grid for Youtube&trade;</h1>
-            <hr class="yt-horizontal-rule ">
-
-
-            <div class="ytg-setting-container">
-                <label>
-                    <span class="yt-uix-form-input-checkbox-container ">
-                        <input type="checkbox" class="yt-uix-form-input-checkbox setting-checkbox ytg-setting" name="scrollAutoLoadVideos" value="1">
-                        <span class="yt-uix-form-input-checkbox-element"></span>
-                    </span>
-                    Auto load videos as you scroll.
-                </label>
-
-
-                <span class="yt-uix-hovercard">
-                    <span class="yt-uix-hovercard-target setting_tooltip" data-position="topright">
-                        <span class="yt-help-icon yt-sprite"></span>
-                    </span>
-                    <div class="yt-uix-hovercard-content">
-                        <p>Even with this setting turned off currently Youtube will auto-load videos at least once as you scroll, this can't be stopped.</p>
-                    </div>
-                </span>
-            </div>
-
+            <hr>
 
             <div class="ytg-setting-container">
                 <label>
-                    <span class="yt-uix-form-input-checkbox-container ">
-                        <input type="checkbox" class="yt-uix-form-input-checkbox setting-checkbox ytg-setting" name="bypassMarkWatchedAlert" value="1">
-                        <span class="yt-uix-form-input-checkbox-element"></span>
+                    <span>
+                        <input type="checkbox" class="ytg-setting" name="bypassMarkWatchedAlert" value="1">
+                        <span></span>
                     </span>
                     Don't warn when marking all videos as watched.
                 </label>
@@ -70,25 +49,25 @@
 
             <div class="ytg-setting-container">
                 <button aria-label="Show watched videos" type="button"
-                        class="ytg-reset-mark-all-watched yt-uix-button yt-uix-button-default yt-uix-button-size-default yt-uix-button-empty"
+                        class="ytg-reset-mark-all-watched"
                         role="button" id="resetWatchHistory">
-                    <span class="yt-uix-button-content">Reset your Watch History</span>
+                    <span>Reset your Watch History</span>
                 </button>
 
-                <span class="yt-uix-hovercard">
-                    <span class="yt-uix-hovercard-target setting_tooltip" data-position="topright">
-                        <span class="yt-help-icon yt-sprite"></span>
+                <span>
+                    <span class="setting_tooltip" data-position="topright">
+                        <span></span>
                     </span>
-                    <div class="yt-uix-hovercard-content">
+                    <div>
                         <p>This deletes all history data stored by this extension. To clear your Youtube history <a href="https://www.youtube.com/feed/history">go here</a>.</p>
                         <p><br /><strong>This action cannot be undone!</strong></p>
                     </div>
                 </span>
             </div>
 
-            <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-primary ytg-exit-settings" type="submit"><span class="yt-uix-button-content">Close</span></button>
+            <button class="ytg-exit-settings" type="submit"><span>Close</span></button>
 
-            <hr class="yt-horizontal-rule ">
+            <hr>
 
 
 
@@ -98,7 +77,7 @@
 
 
             <p>
-                <a href="https://twitter.com/subsgrid" class="yt-uix-button yt-uix-button-size-default yt-uix-button-primary twitter-follow-button" data-show-count="false" data-size="large" target="_blank">Follow @subsgrid on Twitter</a>
+                <a href="https://twitter.com/subsgrid" class="twitter-follow-button" data-show-count="false" data-size="large" target="_blank">Follow @subsgrid on Twitter</a>
            </p>
 
         </div>

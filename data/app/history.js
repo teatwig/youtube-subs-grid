@@ -27,7 +27,6 @@ YTG.history = (function (YTG, history) {
 			YTG.platform.getLocalStorageItem('extendedWatchHistory', function (localData) {
 
 				YTG.history.setHistory(syncData, localData.extendedWatchHistory);
-
 				callback();
 			});
 		});
@@ -37,7 +36,6 @@ YTG.history = (function (YTG, history) {
 	{
         extendedWatchHistory = extendedWatchHistory || [];
 		history.watchHistory = [];
-
 		// Migration.
 		if (watchHistoryData['watchHistory'] && watchHistoryData['watchHistory'].length)
 		{
@@ -202,7 +200,7 @@ YTG.history = (function (YTG, history) {
 
 	history.toggleWatchedHandler = function(e)
 	{
-		var videoId = $(this).attr('data-video-ids');
+		var videoId = $(this).parents('a').attr('href').substring(9, 20);
 
 		if (history.videoIsInHistory(videoId))
 		{

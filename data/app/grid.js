@@ -4,12 +4,10 @@ YTG.grid = (function (YTG, grid) {
 
     grid.settings = {
         'acknowledgedVersion': 0,
-        'scrollAutoLoadVideos': true,
         'bypassMarkWatchedAlert': false
     };
 
     grid.setup = function (isClassicGridMode) {
-
         grid.videoCount = grid.allVideos().length;
 
         YTG.grid.markYTVideos();
@@ -29,8 +27,6 @@ YTG.grid = (function (YTG, grid) {
         YTG.grid.showAllLoadedVideos();
 
         YTG.grid.watchForGridChanges();
-
-        $(window).scroll(YTG.grid.scrollHandler);
     };
 
     grid.isGrid = function()
@@ -50,8 +46,7 @@ YTG.grid = (function (YTG, grid) {
 
     grid.allVideos = function(excludeWatched)
     {
-        var videos = $('.yt-shelf-grid-item');
-
+        var videos = $('ytd-grid-video-renderer');
         if (excludeWatched)
         {
             videos = videos.not('.watched, .ytg-watched');
@@ -61,21 +56,20 @@ YTG.grid = (function (YTG, grid) {
     };
 
     // "What the hell" I hear you thinking, "why do you need this?"
-    // Youtube has a "load more" button at the bottom of your list of
-    // subscriptions you can click, as well as autoloading a set of videos as you
-    // scroll. There's no event I can find that YT
-    // fires for the loading of videos, and short of intercepting
-    // all AJAX calls (which I didn't seem to work anyway) this seemed
+    // Youtube autoloads a set of videos as you scroll.
+    // There's no event I can find that YT fires for the loading of videos,
+    // and short of intercepting all AJAX calls
+    // (which I didn't seem to work anyway) this seemed
     // the best way with out resorting to constantly running loops.
     grid.watchForGridChanges = function()
     {
+        // TODO observer is currently always called when you look at video previews #mouseover-overlay
         // select the target node
-        var target = document.querySelector('#browse-items-primary');
+        var target = document.querySelector('ytd-section-list-renderer');
 
         // create an observer instance
         var observer = new MutationObserver(function(mutations) {
-            if (grid.allVideos().length > grid.videoCount)
-            {
+            //if (grid.allVideos().length > grid.videoCount) {
                 grid.videoCount = grid.allVideos().length;
 
                 YTG.grid.markVideos();
@@ -87,7 +81,7 @@ YTG.grid = (function (YTG, grid) {
                 {
                     YTG.grid.classicModeCleanup();
                 }
-            }
+            //}
         });
 
         // configuration of the observer:
@@ -113,13 +107,6 @@ YTG.grid = (function (YTG, grid) {
         $('ol.section-list > li:not(:first-child)').remove();
     };
 
-    grid.loadMoreVideos = function () {
-
-        // Load more videos, then load some more
-        // Note: don't use jquery here because it messes with the event dispatch stuff.
-        YTG.fireEvent(document.querySelector('.load-more-button'), 'click');
-    };
-
     grid.markAllVisibleVideos = function () {
 
         if (YTG.grid.settings.bypassMarkWatchedAlert || window.confirm('Are you sure you want to mark all videos as watched?')) {
@@ -140,9 +127,11 @@ YTG.grid = (function (YTG, grid) {
     // internal history
     grid.markYTVideos = function () {
         var videos = [];
-        YTG.grid.allVideos().find('.watched [data-video-ids]').each(function (idx, elm) {
-            var videoId = $(elm).attr('data-video-ids');
-            videos.push(videoId);
+        YTG.grid.allVideos().each(function (idx, elm) {
+            if ($(elm).find('ytd-thumbnail-overlay-playback-status-renderer').length) {
+                var videoId = $(elm).find('a').first().attr('href').substring(9, 20);
+                videos.push(videoId);
+            }
         });
 
         YTG.history.massRemoveFromHistory($.unique(videos));
@@ -150,40 +139,38 @@ YTG.grid = (function (YTG, grid) {
 
     grid.markVideos = function () {
         grid.allVideos().each(function (idx, video) {
-            grid.cleanVideo(video);
-            grid.markVideo(video);
+            // if item completely loaded, youtube doesn't load #overlay children directly...
+            if ($(video).find('ytd-thumbnail-overlay-toggle-button-renderer').length) {
+                grid.cleanVideo(video);
+                grid.markVideo(video);
+            }
         });
-
-        if (! YTG.grid.allVideos().find(':visible').length)
-        {
-            grid.loadMoreVideos();
-        }
     };
 
     grid.markVideo = function (videoElm) {
         videoElm = $(videoElm);
-        var videoId = videoElm.find('[data-context-item-id]').attr('data-context-item-id');
+        var videoId = videoElm.find('a').first().attr('href').substring(9, 20);
 
-        var videoLinkElm = videoElm.find('.yt-lockup-thumbnail a');
+        var videoLinkElm = videoElm.find('#overlays');
 
         // Can't unmark these ones.
-        if (videoElm.find('.watched').length > 0) {
+        if (videoElm.find(':not(.ytg-watched) ytd-thumbnail-overlay-playback-status-renderer').length > 0) {
             videoElm.addClass('watched');
             videoElm.find('.ytg-mark-watched').attr('data-tooltip-text', 'Cannot changed watched status');
         }
         else if (!videoElm.hasClass('ytg-watched') && YTG.history.videoIsInHistory(videoId)) {
             videoElm.addClass('ytg-watched');
-            videoLinkElm.append('<div class="watched-badge">WATCHED</div>');
-            videoElm.find('.ytg-mark-watched').attr('data-tooltip-text', 'Mark as unwatched');
+            videoLinkElm.prepend('<div class="watched-badge">WATCHED</div>');
+            videoElm.find('.ytg-mark-watched').attr('aria-label', 'Mark as unwatched');
         }
         else if (videoElm.hasClass('ytg-watched') && !YTG.history.videoIsInHistory(videoId)) {
             videoElm.removeClass('ytg-watched');
             videoElm.find('.watched-badge').remove();
-            videoElm.find('.ytg-mark-watched').attr('data-tooltip-text', 'Mark as watched');
+            videoElm.find('.ytg-mark-watched').attr('aria-label', 'Mark as watched');
         }
 
 
-        if (videoElm.hasClass('ytg-watched') || videoElm.hasClass('watched') || videoElm.find('.watched').length) {
+        if (videoElm.hasClass('ytg-watched') || videoElm.hasClass('watched') || videoElm.find('ytd-thumbnail-overlay-playback-status-renderer').length) {
             videoElm.addClass('ytg-contains-watched');
         }
         else {
@@ -193,7 +180,6 @@ YTG.grid = (function (YTG, grid) {
 
     grid.cleanVideo = function (videoElm) {
         if (!$(videoElm).hasClass('ytg-cleaned')) {
-
             grid.addMarkWatchedBtn(videoElm);
 
             // Fix the thumbnail if its broken.
@@ -207,13 +193,12 @@ YTG.grid = (function (YTG, grid) {
 
     grid.addMarkWatchedBtn = function (videoElm) {
         // Set up the mark as watched button.
-        var button = $(videoElm).find('.addto-watch-later-button').clone();
-
+        var watchLater = $(videoElm).find('ytd-thumbnail-overlay-toggle-button-renderer');
+        var button = watchLater.clone();
         button.removeClass('addto-watch-later-button addto-button');
         button.addClass('ytg-mark-watched');
         button.attr('data-tooltip-text', 'Mark as watched');
-
-        $(videoElm).find('.contains-addto').append(button);
+        $(watchLater).parent().append(button);
     };
 
     grid.setHideVideos = function (hideVideos) {
@@ -236,11 +221,11 @@ YTG.grid = (function (YTG, grid) {
 
         if (grid.hideVideos) {
             $('#hideVideos').addClass('yt-uix-button-toggled');
-            $('#page').addClass('ytg-hide-watched-videos');
+            $('ytd-app').addClass('ytg-hide-watched-videos');
         }
         else {
             $('#showVideos').addClass('yt-uix-button-toggled');
-            $('#page').removeClass('ytg-hide-watched-videos');
+            $('ytd-app').removeClass('ytg-hide-watched-videos');
         }
     };
 
@@ -267,7 +252,7 @@ YTG.grid = (function (YTG, grid) {
     };
 
     grid.buildHistoryControls = function() {
-        var headerContainer = $('.shelf-title-table').first();
+        var headerContainer = $('.grid-subheader').first();
 
         YTG.platform.getControlMarkup(function(markup)
         {
@@ -279,7 +264,7 @@ YTG.grid = (function (YTG, grid) {
             YTG.grid.setViewToggle();
 
             // Move the grid selector in to our markup for better style control.
-            $('.ytg-grid-selector').append($('.shelf-title-row .menu-container').first().detach());
+            $('.ytg-grid-selector').append($('#menu.ytd-shelf-renderer').first().detach());
 
             YTG.platform.getStorageItem(grid.settings, function(data) {
 
@@ -331,20 +316,6 @@ YTG.grid = (function (YTG, grid) {
 
             settingElement.prop('disabled', false);
         });
-    };
-
-    grid.scrollHandler = function()
-    {
-        var s = $(window).scrollTop(),
-            d = $(document).height(),
-            c = $(window).height();
-
-        var scrollPercent = (s / (d-c)) * 100;
-
-        if (scrollPercent > 85 && grid.settings.scrollAutoLoadVideos)
-        {
-            grid.loadMoreVideos();
-        }
     };
 
     return grid;

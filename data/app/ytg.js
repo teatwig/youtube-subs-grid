@@ -14,10 +14,11 @@ YTG = (function (self) {
             //in case the user came from an external source.
 
             // We also only care if the user is subscribed to this channel.
+            var videoId = window.location.href.split('v=')[1].split('&')[0];
 
-            if ($('meta[itemprop="videoId"]').length && $('.yt-uix-subscription-button').data('is-subscribed'))
+            if (videoId.length && $('ytd-subscribe-button-renderer > paper-button[subscribed]'))
             {
-                YTG.history.addToHistory($('meta[itemprop="videoId"]').attr('content'));
+                YTG.history.addToHistory(videoid);
 
                 // As this isn't the subs page we don't have the app initialised.
                 // Dispatch a message to the event/background/extension page and have
@@ -57,7 +58,6 @@ YTG = (function (self) {
             YTG.platform.getStorageItem('classicGridMode', function(data)
             {
                 var isGridable = YTG.grid.isGridable(url);
-
                 if (YTG.grid.isSubsSection(url))
                 {
                     self.buildGridNavigation(data.classicGridMode, isGridable);
